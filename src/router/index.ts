@@ -4,6 +4,8 @@ import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 import Employee from '../views/Employee.vue'
 import Department from '../views/Department.vue'
+import Cities from '../views/Cities.vue'
+import AirQuality from '../views/AirQuality.vue'
 
 const routes = [
     {
@@ -17,6 +19,12 @@ const routes = [
     },
     {
         path: '/department', name: 'Department', component: Department
+    },
+    {
+        path: '/cities', name: 'Cities', component: Cities
+    },
+    {
+        path: '/airquality', name: 'AirQuality', component: AirQuality
     }
 ]
 
