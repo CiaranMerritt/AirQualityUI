@@ -16,13 +16,14 @@ import ISavedCity from '../interfaces/isavedCity';
 
 
 const savedCities = ref<Array<ISavedCity>>([])
-const searchedCities = ref<Array<any>>([])
+const cityAirQuality = ref<any>()
 const modalTitle = ref<string>("Modal title");
-const modalSearchCountryCode = ref<string>("");
 const cityName = ref<string>("");
 const countryName = ref<string>("");
 const lastUpdated = ref<string>("");
 const parameters = ref<string>("");
+const alertMessage = ref<string>("");
+const isWaitingForResponse = ref<boolean>(false);
 
 
 function refreshData() {
@@ -32,30 +33,11 @@ function refreshData() {
         });
 }
 
-function searchCities() {
-    if (modalSearchCountryCode.value != "" && modalSearchCountryCode.value.length <= 2) {
-        const config = {
 
-            withCredentials: false,
-            validateStatus: () => {
-                return true; // I'm always returning true, you may want to do it depending on the status received
-            },
+/*
+{"country":"GB","city":"Aberdeen","count":161282393,"locations":3,"firstUpdated":"2016-02-27T20:00:00+00:00","lastUpdated":"2021-02-01T12:00:00+00:00","parameters":["no2","o3","pm10","pm25"]}
+*/
 
-        };
-        axios.get('https://docs.openaq.org/v2/cities?limit=1000&page=1&offset=0&sort=asc&country_id=' + modalSearchCountryCode.value + '&order_by=city', config)
-            .then((response: any) => {
-                searchedCities.value = [];
-                searchedCities.value.push(...response.data.results);
-                console.log(response.data.results);
-                console.log(response)
-            }).catch((error) => {
-                console.log(error);
-            });
-    }
-    /*
-    {"country":"GB","city":"Aberdeen","count":161282393,"locations":3,"firstUpdated":"2016-02-27T20:00:00+00:00","lastUpdated":"2021-02-01T12:00:00+00:00","parameters":["no2","o3","pm10","pm25"]}
-    */
-}
 
 function addCity(city: any) {
     axios.post(APIUrls.BaseAPIUrl + 'savedcity', {
@@ -84,6 +66,29 @@ function deleteDepartment(city: ISavedCity) {
 
 function updateModal(city: ISavedCity | null, title: string) {
     modalTitle.value = title
+    cityAirQuality.value = null;
+    alertMessage.value = '';
+    const config = {
+
+        withCredentials: false,
+        validateStatus: (status: number) => {
+            return status < 500;
+        },
+
+    };
+    isWaitingForResponse.value = true;
+    axios.get('https://api.openaq.org/v1/latest', config)
+        .then((response: any) => {
+            cityAirQuality.value = null;
+            cityAirQuality.value = response.data;
+            console.log(response.data.results);
+            console.log(response)
+            isWaitingForResponse.value = false;
+        }).catch((error) => {
+            isWaitingForResponse.value = false;
+            alertMessage.value = error.message + ": " + error.response.data.message;
+            console.log(error.response);
+        });
 }
 
 onMounted(() => {
@@ -125,19 +130,21 @@ onMounted(() => {
                 <td>
                     <button
                         type="button"
-                        class="btn btn-danger mr-1"
-                        @click="deleteDepartment(city)"
+                        class="btn btn-success mr-1"
+                        data-bs-toggle="modal"
+                        data-bs-target="#departmentModal"
+                        @click="updateModal(city, 'City Air Quality')"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="16"
                             height="16"
                             fill="currentColor"
-                            class="bi bi-trash-fill"
+                            class="bi bi-search"
                             viewBox="0 0 16 16"
                         >
                             <path
-                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
                             />
                         </svg>
                     </button>
@@ -165,14 +172,40 @@ onMounted(() => {
                 </div>
 
                 <div class="modal-body">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Country code</span>
-                        <input type="text" class="form-control" v-model="modalSearchCountryCode" />
+                    <div v-if="isWaitingForResponse">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            class="bi bi-arrow-repeat svgSpinner"
+                            viewBox="0 0 16 16"
+                        >
+                            <path
+                                d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"
+                            />
+                            <path
+                                fill-rule="evenodd"
+                                d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"
+                            />
+                        </svg>
                     </div>
 
-                    <button type="button" class="btn btn-primary" @click="searchCities()">Search</button>
+                    <div
+                        v-if="alertMessage != ''"
+                        class="alert alert-danger fade show"
+                        role="alert"
+                    >
+                        <strong>{{ alertMessage }}</strong>
+                        <!-- <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>-->
+                    </div>
 
-                    <div class="tableFixHead">
+                    <div class="tableFixHead" v-if="cityAirQuality != null">
                         <table>
                             <thead>
                                 <tr>
@@ -185,12 +218,12 @@ onMounted(() => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(searchedCity, index) in searchedCities">
+                                <tr v-for="(searchedCity, index) in cityAirQuality">
                                     <td>{{ index }}</td>
                                     <td>{{ searchedCity.country }}</td>
-                                    <td>{{ searchedCity.city }}</td>
-                                    <td>{{ searchedCity.lastUpdated }}</td>
-                                    <td>{{ searchedCity.parameters.toString() }}</td>
+                                    <td>{{ searchedCity }}</td>
+                                    <td>{{ searchedCity }}</td>
+                                    <td>{{ searchedCity }}</td>
                                     <td>
                                         <button
                                             type="button"
@@ -223,7 +256,7 @@ onMounted(() => {
 <!-- 
     {"country":"GB","city":"Aberdeen","count":161282393,"locations":3,"firstUpdated":"2016-02-27T20:00:00+00:00","lastUpdated":"2021-02-01T12:00:00+00:00","parameters":["no2","o3","pm10","pm25"]}
      -->
-<style>
+<style scoped>
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -254,5 +287,22 @@ td {
 }
 th {
     background: #eee;
+}
+
+.svgSpinner {
+    top: 50%;
+    left: 50%;
+    width: 5%;
+    height: 5%;
+    animation-name: spin;
+    animation-duration: 1000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>
