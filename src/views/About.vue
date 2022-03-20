@@ -9,7 +9,7 @@ import HelloWorld from '../components/HelloWorld.vue'
   <p class="text-center">
     <strong>Welcome to the Air Quality Project</strong>
   </p>
-  <p class="text-center">About page has instructions on how to use the site</p>
+  <p class="text-center">Here is how to access the Air Quality Data</p>
   <div class="d-flex justify-content-center">
     <ol class="list-group list-group-numbered w-50">
       <li class="list-group-item">Open dropdown for Air Quality</li>
