@@ -11,7 +11,6 @@ import HelloWorld from '../components/HelloWorld.vue'
 import APIUrls from '../enums/EapiUrls';
 
 //Interfaces
-import IDepartment from '../interfaces/idepartment';
 import ISavedCity from '../interfaces/isavedCity';
 
 
@@ -87,14 +86,10 @@ import ISavedCity from '../interfaces/isavedCity';
 const savedCities = ref<Array<ISavedCity>>([])
 const cityAirQuality = ref<any>()
 const modalTitle = ref<string>("Modal title");
-const cityName = ref<string>("");
-const countryName = ref<string>("");
-const lastUpdated = ref<string>("");
-const parameters = ref<string>("");
 const alertMessage = ref<string>("");
 const isWaitingForResponse = ref<boolean>(false);
 
-
+//Refresh data from database
 function refreshData() {
     axios.get(APIUrls.BaseAPIUrl + 'savedcity')
         .then((response: any) => {
@@ -103,37 +98,8 @@ function refreshData() {
 }
 
 
-/*
-{"country":"GB","city":"Aberdeen","count":161282393,"locations":3,"firstUpdated":"2016-02-27T20:00:00+00:00","lastUpdated":"2021-02-01T12:00:00+00:00","parameters":["no2","o3","pm10","pm25"]}
-*/
-
-
-function addCity(city: any) {
-    axios.post(APIUrls.BaseAPIUrl + 'savedcity', {
-        CityName: city.city,
-        CountryName: city.country,
-        LastUpdated: city.lastUpdated,
-        Parameters: city.parameters.toString(),
-    })
-        .then((response: any) => {
-            refreshData();
-            alert(response.data);
-        });
-}
-
-
-function deleteDepartment(city: ISavedCity) {
-    if (!confirm("Are you sure you want to delete")) {
-        return;
-    }
-    axios.delete(APIUrls.BaseAPIUrl + 'savedcity/' + city.CityId)
-        .then((response: any) => {
-            refreshData();
-            alert(response.data);
-        });
-}
-
-function updateModal(city: ISavedCity | null, title: string) {
+//Update the modal that will show the air quality data
+function updateModal(city: ISavedCity, title: string) {
     modalTitle.value = title
     cityAirQuality.value = null;
     alertMessage.value = '';
@@ -146,7 +112,7 @@ function updateModal(city: ISavedCity | null, title: string) {
 
     };
     isWaitingForResponse.value = true;
-    axios.get('https://api.openaq.org/v1/latest?limit=100&page=1&offset=0&sort=desc&radius=1000&country_id=' + city?.CountryName + '&city=' + city?.CityName + '&order_by=lastUpdated&dumpRaw=false', config)
+    axios.get('https://api.openaq.org/v1/latest?limit=100&page=1&offset=0&sort=desc&radius=1000&country_id=' + city.CountryName + '&city=' + city.CityName + '&order_by=lastUpdated&dumpRaw=false', config)
         .then((response: any) => {
             cityAirQuality.value = null;
             cityAirQuality.value = response.results;
@@ -296,26 +262,7 @@ onMounted(() => {
                                     <td>{{ searchedCity.value }}</td>
                                     <td>{{ searchedCity.unit }}</td>
                                     <td>{{ searchedCity.averagingPeriod.value }} {{ searchedCity.averagingPeriod.unit }}</td>
-                                    <td>
-                                        <button
-                                            type="button"
-                                            class="btn btn-success mr-1"
-                                            @click="addCity(searchedCity)"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                fill="currentColor"
-                                                class="bi bi-plus-circle-fill"
-                                                viewBox="0 0 16 16"
-                                            >
-                                                <path
-                                                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"
-                                                />
-                                            </svg>
-                                        </button>
-                                    </td>
+                                    <td>{{ searchedCity.lastUpdated }}</td>
                                 </tr>
                             </tbody>
                         </table>

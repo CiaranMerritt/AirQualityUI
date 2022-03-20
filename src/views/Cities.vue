@@ -21,13 +21,10 @@ const filterSearch = ref<string>("");
 const filteredSearchedCities = computed(() => searchedCities.value.filter((city) => { return city.city.toUpperCase().includes(filterSearch.value.toUpperCase()) }))
 const modalTitle = ref<string>("Modal title");
 const modalSearchCountryCode = ref<string>("");
-const cityName = ref<string>("");
-const countryName = ref<string>("");
-const lastUpdated = ref<string>("");
-const parameters = ref<string>("");
+const alertMessage = ref<string>("");
 const isWaitingForResponse = ref<boolean>(false);
 
-
+//Refresh the table from the db endpoint
 function refreshData() {
     axios.get(APIUrls.BaseAPIUrl + 'savedcity')
         .then((response: any) => {
@@ -35,7 +32,10 @@ function refreshData() {
         });
 }
 
+// Searching for a new city to add
 function searchCities() {
+    alertMessage.value = "";
+    // Country code only can be two digits to be valid
     if (modalSearchCountryCode.value != "" && modalSearchCountryCode.value.length <= 2) {
         const config = {
 
@@ -55,6 +55,7 @@ function searchCities() {
                 isWaitingForResponse.value = false;
             }).catch((error) => {
                 isWaitingForResponse.value = false;
+                alertMessage.value = error.message;
                 console.log(error);
             });
     }
@@ -76,8 +77,8 @@ function addCity(city: any) {
         });
 }
 
-
-function deleteDepartment(city: ISavedCity) {
+//Delete city from database
+function deleteCity(city: ISavedCity) {
     if (!confirm("Are you sure you want to delete")) {
         return;
     }
@@ -89,6 +90,7 @@ function deleteDepartment(city: ISavedCity) {
 }
 
 function updateModal(city: ISavedCity | null, title: string) {
+    alertMessage.value = "";
     modalTitle.value = title
 }
 
@@ -128,11 +130,7 @@ onMounted(() => {
                 <td>{{ city.LastUpdated }}</td>
                 <td>{{ city.Parameters }}</td>
                 <td>
-                    <button
-                        type="button"
-                        class="btn btn-danger mr-1"
-                        @click="deleteDepartment(city)"
-                    >
+                    <button type="button" class="btn btn-danger mr-1" @click="deleteCity(city)">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="16"
@@ -182,11 +180,6 @@ onMounted(() => {
                         :disabled="isWaitingForResponse"
                     >Search</button>
 
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Filter</span>
-                        <input type="text" class="form-control" v-model="filterSearch" />
-                    </div>
-
                     <div v-if="isWaitingForResponse">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -204,6 +197,25 @@ onMounted(() => {
                                 d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"
                             />
                         </svg>
+                    </div>
+
+                    <div
+                        v-if="alertMessage != ''"
+                        class="alert alert-danger fade show"
+                        role="alert"
+                    >
+                        <strong>{{ alertMessage }}</strong>
+                        <!-- <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>-->
+                    </div>
+
+                    <div class="input-group mb-3" v-if="searchedCities.length > 0">
+                        <span class="input-group-text">Filter</span>
+                        <input type="text" class="form-control" v-model="filterSearch" />
                     </div>
 
                     <div class="tableFixHead" v-if="searchedCities.length > 0">
