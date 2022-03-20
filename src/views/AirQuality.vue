@@ -15,6 +15,75 @@ import IDepartment from '../interfaces/idepartment';
 import ISavedCity from '../interfaces/isavedCity';
 
 
+/**
+ * the data from when it worked for five seconds
+ * 
+ * "meta": {
+        "name": "openaq-api",
+        "license": "CC BY 4.0d",
+        "website": "https://u50g7n0cbj.execute-api.us-east-1.amazonaws.com/",
+        "page": 1,
+        "limit": 100,
+        "found": 12516
+    },
+    "results": [{
+            "location": "Wekerom-Riemterdijk",
+            "city": "Wekerom",
+            "country": "NL",
+            "coordinates": {
+                "latitude": 52.1116,
+                "longitude": 5.70842
+            },
+            "measurements": [
+                {
+                    "parameter": "pm25",
+                    "value": 13.3746,
+                    "lastUpdated": "2022-03-13T21:00:00Z",
+                    "unit": "µg/m³",
+                    "sourceName": "Netherlands",
+                    "averagingPeriod": {
+                        "value": 86400,
+                        "unit": "seconds"
+                    }
+                },
+                {
+                    "parameter": "no2",
+                    "value": 15.99,
+                    "lastUpdated": "2022-03-13T21:00:00Z",
+                    "unit": "µg/m³",
+                    "sourceName": "Netherlands",
+                    "averagingPeriod": {
+                        "value": 3600,
+                        "unit": "seconds"
+                    }
+                },
+                {
+                    "parameter": "pm10",
+                    "value": 19.79,
+                    "lastUpdated": "2022-03-13T21:00:00Z",
+                    "unit": "µg/m³",
+                    "sourceName": "Netherlands",
+                    "averagingPeriod": {
+                        "value": 86400,
+                        "unit": "seconds"
+                    }
+                },
+                {
+                    "parameter": "o3",
+                    "value": 65.78,
+                    "lastUpdated": "2022-03-13T21:00:00Z",
+                    "unit": "µg/m³",
+                    "sourceName": "Netherlands",
+                    "averagingPeriod": {
+                        "value": 3600,
+                        "unit": "seconds"
+                    }
+                }
+            ]
+        },
+ */
+
+
 const savedCities = ref<Array<ISavedCity>>([])
 const cityAirQuality = ref<any>()
 const modalTitle = ref<string>("Modal title");
@@ -77,10 +146,10 @@ function updateModal(city: ISavedCity | null, title: string) {
 
     };
     isWaitingForResponse.value = true;
-    axios.get('https://api.openaq.org/v1/latest', config)
+    axios.get('https://api.openaq.org/v1/latest?limit=100&page=1&offset=0&sort=desc&radius=1000&country_id=' + city?.CountryName + '&city=' + city?.CityName + '&order_by=lastUpdated&dumpRaw=false', config)
         .then((response: any) => {
             cityAirQuality.value = null;
-            cityAirQuality.value = response.data;
+            cityAirQuality.value = response.results;
             console.log(response.data.results);
             console.log(response)
             isWaitingForResponse.value = false;
@@ -205,25 +274,37 @@ onMounted(() => {
                         ></button>-->
                     </div>
 
+                    <div v-if="cityAirQuality != null">
+                        <span class="text-center">
+                            <strong>{{ cityAirQuality.location }}</strong>
+                        </span>
+                        <span class="text-center">
+                            <strong>{{ cityAirQuality.city }}</strong>
+                        </span>
+                        <span class="text-center">
+                            <strong>{{ cityAirQuality.country }}</strong>
+                        </span>
+                    </div>
+
                     <div class="tableFixHead" v-if="cityAirQuality != null">
                         <table>
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Country</th>
-                                    <th>City</th>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                    <th>Unit</th>
+                                    <th>Average Period</th>
                                     <th>Last Updated</th>
-                                    <th>Parameters</th>
-                                    <th>Save</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(searchedCity, index) in cityAirQuality">
+                                <tr v-for="(searchedCity, index) in cityAirQuality.measurements">
                                     <td>{{ index }}</td>
-                                    <td>{{ searchedCity.country }}</td>
-                                    <td>{{ searchedCity }}</td>
-                                    <td>{{ searchedCity }}</td>
-                                    <td>{{ searchedCity }}</td>
+                                    <td>{{ searchedCity.parameter }}</td>
+                                    <td>{{ searchedCity.value }}</td>
+                                    <td>{{ searchedCity.unit }}</td>
+                                    <td>{{ searchedCity.averagingPeriod.value }} {{ searchedCity.averagingPeriod.unit }}</td>
                                     <td>
                                         <button
                                             type="button"
