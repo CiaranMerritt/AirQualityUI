@@ -167,16 +167,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <img alt="Vue logo" src="../assets/logo.png" />
     <HelloWorld msg="Air Quality" />
-
-    <button
-        type="button"
-        class="btn btn-primary m-2 float-end"
-        data-bs-toggle="modal"
-        data-bs-target="#departmentModal"
-        @click="updateModal(null, 'Add New City')"
-    >Find New City</button>
 
     <table class="table table-striped table-hover">
         <thead>
@@ -186,7 +177,7 @@ onMounted(() => {
                 <th scope="col">Country ID</th>
                 <th scope="col">Last Updated</th>
                 <th scope="col">Available Parameters</th>
-                <th scope="col">Delete City</th>
+                <th scope="col">Get Air Quality Data</th>
             </tr>
         </thead>
         <tbody>
@@ -275,15 +266,15 @@ onMounted(() => {
                     </div>
 
                     <div v-if="cityAirQuality != null">
-                        <span class="text-center">
+                        <p class="text-center">
                             <strong>{{ cityAirQuality.location }}</strong>
-                        </span>
-                        <span class="text-center">
+                        </p>
+                        <p class="text-center">
                             <strong>{{ cityAirQuality.city }}</strong>
-                        </span>
-                        <span class="text-center">
+                        </p>
+                        <p class="text-center">
                             <strong>{{ cityAirQuality.country }}</strong>
-                        </span>
+                        </p>
                     </div>
 
                     <div class="tableFixHead" v-if="cityAirQuality != null">

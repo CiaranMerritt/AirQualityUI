@@ -5,8 +5,13 @@ import HelloWorld from '../components/HelloWorld.vue'
 </script>
 
 <template>
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Home" />
+  <HelloWorld msg="Home" />
+  <div>
+    <p class="text-center">
+      <strong>Welcome to the Air Quality Project</strong>
+    </p>
+    <p class="text-center">About page has instructions on how to use the site</p>
+  </div>
 </template>
 
 <style>
@@ -17,5 +22,5 @@ import HelloWorld from '../components/HelloWorld.vue'
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-} 
+}
 </style>

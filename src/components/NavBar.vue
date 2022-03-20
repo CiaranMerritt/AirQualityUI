@@ -35,27 +35,6 @@ import { ref } from 'vue'
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-            >Practice</a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li>
-                <router-link to="/department" class="dropdown-item" href="#">Departments</router-link>
-              </li>
-              <li>
-                <hr class="dropdown-divider" />
-              </li>
-              <li>
-                <router-link to="/employee" class="dropdown-item" href="#">Employees</router-link>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
             >AirQuality</a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li>
@@ -69,14 +48,35 @@ import { ref } from 'vue'
               </li>
             </ul>
           </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle disabled"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >Practice</a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li>
+                <router-link to="/department" class="dropdown-item" href="#">Departments</router-link>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <router-link to="/employee" class="dropdown-item" href="#">Employees</router-link>
+              </li>
+            </ul>
+          </li>
           <!-- <li class="nav-item">
             <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
           </li>-->
         </ul>
-        <form class="d-flex">
+        <!-- <form class="d-flex">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
           <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+        </form>-->
       </div>
     </div>
   </nav>

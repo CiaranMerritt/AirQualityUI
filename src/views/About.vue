@@ -5,8 +5,25 @@ import HelloWorld from '../components/HelloWorld.vue'
 </script>
 
 <template>
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="About" />
+  <HelloWorld msg="About" />
+  <p class="text-center">
+    <strong>Welcome to the Air Quality Project</strong>
+  </p>
+  <p class="text-center">About page has instructions on how to use the site</p>
+  <div class="d-flex justify-content-center">
+    <ol class="list-group list-group-numbered w-50">
+      <li class="list-group-item">Open dropdown for Air Quality</li>
+      <li class="list-group-item">Click on Cities page</li>
+      <li class="list-group-item">Check for any cities in database</li>
+      <li class="list-group-item">Can added city with 'Find New City' button</li>
+      <li
+        class="list-group-item"
+      >Once there are cities Available in the database go to the air quality page from the dropdowns</li>
+      <li
+        class="list-group-item"
+      >Click the green search button on the city you want the air quality data for</li>
+    </ol>
+  </div>
 </template>
 
 <style>
