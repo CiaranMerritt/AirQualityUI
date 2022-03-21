@@ -115,7 +115,7 @@ function updateModal(city: ISavedCity, title: string) {
     axios.get('https://api.openaq.org/v1/latest?limit=100&page=1&offset=0&sort=desc&radius=1000&country_id=' + city.CountryName + '&city=' + city.CityName + '&order_by=lastUpdated&dumpRaw=false', config)
         .then((response: any) => {
             cityAirQuality.value = null;
-            cityAirQuality.value = response.results;
+            cityAirQuality.value = response.data.results;
             console.log(response.data.results);
             console.log(response)
             isWaitingForResponse.value = false;
@@ -230,42 +230,46 @@ onMounted(() => {
                             aria-label="Close"
                         ></button>-->
                     </div>
-
                     <div v-if="cityAirQuality != null">
                         <p class="text-center">
-                            <strong>{{ cityAirQuality.location }}</strong>
+                            <strong>{{ cityAirQuality[0].city }}</strong>
                         </p>
                         <p class="text-center">
-                            <strong>{{ cityAirQuality.city }}</strong>
-                        </p>
-                        <p class="text-center">
-                            <strong>{{ cityAirQuality.country }}</strong>
+                            <strong>{{ cityAirQuality[0].country }}</strong>
                         </p>
                     </div>
+                    <div v-if="cityAirQuality != null" v-for="cityData in cityAirQuality">
+                        <div>
+                            <p class="text-center">
+                                <strong>{{ cityData.location }}</strong>
+                            </p>
+                        </div>
 
-                    <div class="tableFixHead" v-if="cityAirQuality != null">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Parameter</th>
-                                    <th>Value</th>
-                                    <th>Unit</th>
-                                    <th>Average Period</th>
-                                    <th>Last Updated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(searchedCity, index) in cityAirQuality.measurements">
-                                    <td>{{ index }}</td>
-                                    <td>{{ searchedCity.parameter }}</td>
-                                    <td>{{ searchedCity.value }}</td>
-                                    <td>{{ searchedCity.unit }}</td>
-                                    <td>{{ searchedCity.averagingPeriod.value }} {{ searchedCity.averagingPeriod.unit }}</td>
-                                    <td>{{ searchedCity.lastUpdated }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="tableFixHead mb-5">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Parameter</th>
+                                        <th>Value</th>
+                                        <th>Unit</th>
+                                        <th>Average Period</th>
+                                        <th>Last Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(searchedCity, index) in cityData.measurements">
+                                        <td>{{ index }}</td>
+                                        <td>{{ searchedCity.parameter }}</td>
+                                        <td>{{ searchedCity.value }}</td>
+                                        <td>{{ searchedCity.unit }}</td>
+                                        <td>{{ searchedCity.averagingPeriod.value }} {{ searchedCity.averagingPeriod.unit }}</td>
+                                        <td>{{ searchedCity.lastUpdated }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr v-if="cityAirQuality.length > 1" />
                     </div>
                 </div>
             </div>
@@ -287,7 +291,7 @@ onMounted(() => {
 
 .tableFixHead {
     overflow: auto;
-    height: 40vh;
+    /* height: 40vh; */
 }
 .tableFixHead thead th {
     position: sticky;
